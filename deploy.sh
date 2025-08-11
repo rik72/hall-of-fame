@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Configuration
 BUCKET_NAME="hall-of-fame-webapp"
 REGION="eu-west-1"
-CLOUDFRONT_ENABLED=false
+CLOUDFRONT_ENABLED=true
 
 echo -e "${BLUE}🚀 Hall of Fame Webapp AWS Deployment${NC}"
 echo "=================================="
@@ -106,70 +106,24 @@ WEBSITE_ENDPOINT=$(AWS_PROFILE=hall-of-fame aws s3api get-bucket-website --bucke
 echo -e "${GREEN}🌐 Your website is now live at:${NC}"
 echo -e "${BLUE}   http://$WEBSITE_ENDPOINT${NC}"
 
-# Optional: Set up CloudFront distribution
+# CloudFront cache invalidation
 if [ "$CLOUDFRONT_ENABLED" = true ]; then
-    echo -e "${YELLOW}☁️  Setting up CloudFront distribution...${NC}"
+    echo -e "${YELLOW}☁️  Managing CloudFront cache...${NC}"
     
-    # Create CloudFront distribution
-    DISTRIBUTION_ID=$(aws cloudfront create-distribution \
-        --distribution-config '{
-            "CallerReference": "'$(date +%s)'",
-            "Comment": "Hall of Fame Webapp",
-            "DefaultRootObject": "index.html",
-            "Enabled": true,
-            "PriceClass": "PriceClass_100",
-            "Origins": {
-                "Quantity": 1,
-                "Items": [
-                    {
-                        "Id": "S3-'$BUCKET_NAME'",
-                        "DomainName": "'$BUCKET_NAME'.s3-website-'$REGION'.amazonaws.com",
-                        "CustomOriginConfig": {
-                            "HTTPPort": 80,
-                            "HTTPSPort": 443,
-                            "OriginProtocolPolicy": "http-only"
-                        }
-                    }
-                ]
-            },
-            "DefaultCacheBehavior": {
-                "TargetOriginId": "S3-'$BUCKET_NAME'",
-                "ViewerProtocolPolicy": "redirect-to-https",
-                "AllowedMethods": {
-                    "Quantity": 2,
-                    "Items": ["GET", "HEAD"],
-                    "CachedMethods": {
-                        "Quantity": 2,
-                        "Items": ["GET", "HEAD"]
-                    }
-                },
-                "ForwardedValues": {
-                    "QueryString": false,
-                    "Cookies": {
-                        "Forward": "none"
-                    }
-                },
-                "MinTTL": 0,
-                "DefaultTTL": 86400,
-                "MaxTTL": 31536000
-            },
-            "CustomErrorResponses": {
-                "Quantity": 1,
-                "Items": [
-                    {
-                        "ErrorCode": 404,
-                        "ResponseCode": "200",
-                        "ResponsePagePath": "/index.html"
-                    }
-                ]
-            }
-        }' \
-        --query 'Distribution.Id' \
+    # Use the known distribution ID
+    DISTRIBUTION_ID="E1AK3M9HAHKI34"
+    echo -e "${GREEN}✅ Using CloudFront distribution: $DISTRIBUTION_ID${NC}"
+    
+    # Invalidate CloudFront cache to ensure latest content is served
+    echo -e "${YELLOW}🔄 Invalidating CloudFront cache...${NC}"
+    INVALIDATION_ID=$(AWS_PROFILE=hall-of-fame aws cloudfront create-invalidation \
+        --distribution-id "$DISTRIBUTION_ID" \
+        --paths "/*" \
+        --query 'Invalidation.Id' \
         --output text)
     
-    echo -e "${GREEN}✅ CloudFront distribution created: $DISTRIBUTION_ID${NC}"
-    echo -e "${YELLOW}⏳ CloudFront is deploying... This may take 10-15 minutes${NC}"
-    echo -e "${BLUE}   You can check the status in the AWS Console${NC}"
+    echo -e "${GREEN}✅ Cache invalidation created: $INVALIDATION_ID${NC}"
+    echo -e "${YELLOW}⏳ Cache invalidation in progress... This may take 5-10 minutes${NC}"
 fi
 
 echo ""
