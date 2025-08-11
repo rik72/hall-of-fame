@@ -7,7 +7,10 @@
     "validate": "node validate-compliance.js",
     "serve": "python3 -m http.server 8088",
     "check-compliance": "node validate-compliance.js && echo '✅ Code is compliant with Hall of Fame standards'",
-    "start": "npm run check-compliance && npm run serve"
+    "start": "npm run check-compliance && npm run serve",
+    "deploy": "chmod +x deploy.sh && ./deploy.sh",
+    "deploy:aws": "npm run deploy",
+    "setup:aws": "echo 'Setting up AWS deployment...' && chmod +x deploy.sh"
   },
   "keywords": [
     "hall-of-fame",

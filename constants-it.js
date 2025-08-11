@@ -115,7 +115,7 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
         MODIFICA: 'Modifica',
         NESSUN_GIOCATORE_CLASSIFICA: 'Nessun giocatore in classifica',
         NESSUNA_PARTITA: 'Nessuna partita registrata. Inizia registrando le prime partite!',
-        AGGIUNGI_PARTITE_CLASSIFICA: 'Aggiungi giocatori e registra le prime partite per vedere la classifica',
+        AGGIUNGI_PARTITE_CLASSIFICA: 'Aggiungi i giocatori, i giochi e registra le prime partite per vedere la classifica',
         GIOCO_ELIMINATO: 'Gioco eliminato',
         GIOCATORE_ELIMINATO: 'Giocatore eliminato',
         PODIO_CLASSIFICA_PUNTEGGI: 'Podio nella classifica dei punteggi completa',
