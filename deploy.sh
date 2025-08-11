@@ -96,6 +96,7 @@ AWS_PROFILE=hall-of-fame aws s3 sync . s3://"$BUCKET_NAME" \
     --exclude "improvements_todo.md" \
     --exclude "AI-README.md" \
     --exclude "screenshots/*" \
+    --exclude "ionos/*" \
     --delete
 
 echo -e "${GREEN}✅ Files uploaded successfully${NC}"
