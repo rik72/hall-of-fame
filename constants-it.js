@@ -549,7 +549,7 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
     },
 
     POSITION_LABELS: {
-        winner: '🏆 Vincitore',
+        winner: '🏆 Vittoria',
         participant: '🥈 Piazzamento', 
         last: '😞 Ultimo posto'
     },

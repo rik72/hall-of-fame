@@ -49,7 +49,7 @@ class HtmlBuilder {
         ).join('');
         
         const positionOptions = [
-            { value: 'winner', label: '🏆 Vincitore (2 punti)', selected: selectedPosition === 'winner' },
+            { value: 'winner', label: '🏆 Vittoria (2 punti)', selected: selectedPosition === 'winner' },
             { value: 'participant', label: '🥈 Piazzamento (1 punto)', selected: selectedPosition === 'participant' },
             { value: 'last', label: `😞 ${window.CONSTANTS?.UI_TEXT?.ULTIMO_POSTO || 'Last place'} (0 punti)`, selected: selectedPosition === 'last' }
         ].map(opt => 
