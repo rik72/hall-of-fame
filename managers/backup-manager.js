@@ -133,7 +133,8 @@ class BackupManager {
                typeof data === 'object' &&
                Array.isArray(data.players) &&
                Array.isArray(data.games) &&
-               Array.isArray(data.matches);
+               Array.isArray(data.matches) &&
+               (data.tournaments === undefined || Array.isArray(data.tournaments));
     }
 
     /**
@@ -153,6 +154,11 @@ class BackupManager {
 
         // Controlla che siano array
         if (!Array.isArray(data.players) || !Array.isArray(data.games) || !Array.isArray(data.matches)) {
+            return false;
+        }
+
+        // Tournaments are optional
+        if (data.hasOwnProperty('tournaments') && !Array.isArray(data.tournaments)) {
             return false;
         }
 

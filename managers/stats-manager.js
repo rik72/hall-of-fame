@@ -7,6 +7,7 @@ class StatsManager {
         this.players = [];
         this.matches = [];
         this.currentSortOrder = 'points'; // Default sorting by points
+        this.currentTournamentFilter = null; // null = all tournaments, number = specific tournament ID
     }
 
     /**
@@ -36,12 +37,39 @@ class StatsManager {
     }
 
     /**
+     * Imposta il filtro torneo corrente
+     * @param {number|null} tournamentId - ID del torneo (null = tutti i tornei)
+     */
+    setTournamentFilter(tournamentId) {
+        this.currentTournamentFilter = tournamentId === '' || tournamentId === null ? null : parseInt(tournamentId);
+    }
+
+    /**
+     * Ottiene il filtro torneo corrente
+     * @returns {number|null} - ID del torneo corrente (null = tutti i tornei)
+     */
+    getTournamentFilter() {
+        return this.currentTournamentFilter;
+    }
+
+    /**
      * Calcola le statistiche complete di un giocatore
      * @param {number} playerId - ID del giocatore
+     * @param {number|null} tournamentId - ID del torneo per filtrare le partite (opzionale, null = tutti i tornei)
      * @returns {object} - Oggetto con tutte le statistiche del giocatore
      */
-    calculatePlayerStats(playerId) {
-        const playerMatches = this.matches.filter(m => 
+    calculatePlayerStats(playerId, tournamentId = null) {
+        let filteredMatches = this.matches;
+        
+        // Filter matches by tournament if specified
+        if (tournamentId !== null) {
+            filteredMatches = this.matches.filter(m => m.tournamentId === tournamentId);
+        } else {
+            // When tournamentId is null, include all matches (including those without tournament)
+            filteredMatches = this.matches;
+        }
+        
+        const playerMatches = filteredMatches.filter(m => 
             m.participants.some(p => p.playerId === playerId)
         );
         
@@ -83,13 +111,14 @@ class StatsManager {
     /**
      * Ottiene il ranking completo dei giocatori
      * @param {string} sortBy - Criterio di ordinamento ('points', 'performance')
+     * @param {number|null} tournamentId - ID del torneo per filtrare le partite (opzionale, null = tutti i tornei)
      * @returns {Array} - Array dei giocatori con statistiche, ordinato
      */
-    getRanking(sortBy = 'points') {
+    getRanking(sortBy = 'points', tournamentId = null) {
         return this.players.map(player => ({
             ...player,
-            ...this.calculatePlayerStats(player.id)
-        })).sort((a, b) => {
+            ...this.calculatePlayerStats(player.id, tournamentId)
+        })).filter(player => player.gamesPlayed > 0).sort((a, b) => {
             if (sortBy === 'performance') {
                 // Sort by performance (descending), then by total points (descending), then by wins (descending)
                 if (b.performance !== a.performance) return b.performance - a.performance;
@@ -138,7 +167,7 @@ class StatsManager {
                 ...player,
                 ...stats
             };
-        }).filter(player => player !== null);
+        }).filter(player => player !== null && player.gamesPlayed > 0);
         
         if (playersWithStats.length === 0) {
             return [];
@@ -171,7 +200,7 @@ class StatsManager {
             return;
         }
         
-        const ranking = this.getRanking(this.currentSortOrder);
+        const ranking = this.getRanking(this.currentSortOrder, this.currentTournamentFilter);
         
         if (ranking.length === 0) {
             container.innerHTML = `
@@ -288,7 +317,7 @@ class StatsManager {
             return;
         }
         
-        const ranking = this.getRanking(this.currentSortOrder);
+        const ranking = this.getRanking(this.currentSortOrder, this.currentTournamentFilter);
         
         if (ranking.length === 0) {
             container.innerHTML = `<p class="my-2 text-center text-muted">${window.CONSTANTS?.UI_TEXT?.NESSUN_GIOCATORE_CLASSIFICA || 'No players in leaderboard'}</p>`;
@@ -628,7 +657,7 @@ class StatsManager {
                 ...player,
                 ...stats
             };
-        }).filter(player => player !== null);
+        }).filter(player => player !== null && player.gamesPlayed > 0);
         
         if (playersWithStats.length === 0) {
             return null;

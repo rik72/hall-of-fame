@@ -12,7 +12,8 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
     NAVIGATION: {
         PLAYERS: 'Giocatori',
         GAMES: 'Giochi',
-        MATCHES: 'Partite'
+        MATCHES: 'Partite',
+        TOURNAMENTS: 'Tornei'
     },
 
     // Section Headers
@@ -21,6 +22,7 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
         PLAYERS: 'Giocatori',
         GAMES: 'Giochi',
         MATCHES: 'Partite',
+        TOURNAMENTS: 'Tornei',
         GAME_RANKING: 'Classifica Gioco'
     },
 
@@ -28,6 +30,7 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
     BUTTONS: {
         ADD_PLAYER: 'Aggiungi Giocatore',
         ADD_GAME: 'Aggiungi Gioco',
+        ADD_TOURNAMENT: 'Aggiungi Torneo',
         RECORD_MATCH: 'Registra Partita',
         ADD_PARTICIPANT: 'Aggiungi Partecipante',
         CANCEL: 'Annulla',
@@ -43,9 +46,14 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
     FORM_LABELS: {
         NAME: 'Nome',
         GAME_NAME: 'Nome del Gioco',
+        TOURNAMENT_NAME: 'Nome del Torneo',
+        DESCRIPTION: 'Descrizione',
+        START_DATE: 'Data di inizio',
+        END_DATE: 'Data di fine',
         AVATAR: 'Avatar',
         GAME: 'Gioco',
         DATE: 'Data',
+        TOURNAMENT: 'Torneo',
         TYPE: 'Tipo',
         PARTICIPANTS_AND_RESULTS: 'Partecipanti e Risultati',
         BACKUP_FILE: 'Seleziona file .hof'
@@ -65,6 +73,9 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
             POINTS: 'Per Punteggio',
             PERFORMANCE: 'Per Performance'
         },
+        TOURNAMENT_FILTER: {
+            ALL_TOURNAMENTS: 'Tutti i tornei'
+        },
         GAME_TYPES: {
             BOARD: 'Gioco da Tavolo',
             CARD: 'Gioco di Carte', 
@@ -80,6 +91,8 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
         EDIT_PLAYER: 'Modifica Giocatore',
         ADD_GAME: 'Aggiungi Gioco',
         EDIT_GAME: 'Modifica Gioco',
+        ADD_TOURNAMENT: 'Aggiungi Torneo',
+        EDIT_TOURNAMENT: 'Modifica Torneo',
         RECORD_MATCH: 'Registra Partita',
         IMPORT_BACKUP: 'Importa Backup',
         GAME_RANKING: 'Classifica Gioco'
@@ -118,11 +131,17 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
         AGGIUNGI_PARTITE_CLASSIFICA: 'Aggiungi i giocatori, i giochi e registra le prime partite per vedere la classifica',
         GIOCO_ELIMINATO: 'Gioco eliminato',
         GIOCATORE_ELIMINATO: 'Giocatore eliminato',
+        TORNEO_ELIMINATO: 'Torneo eliminato',
+        IN_CORSO: 'In corso',
         PODIO_CLASSIFICA_PUNTEGGI: 'Podio nella classifica dei punteggi completa',
         PRIMO_POSTO_GIOCO: 'Primo posto a',
-        SECONDO_POSTO: 'Secondo posto',
-        TERZO_POSTO: 'Terzo posto',
-        MIGLIOR_PERFORMANCE: 'Miglior performance'
+        PRIMO_POSTO_ALL_TIMES: 'Primo posto assoluto',
+        SECONDO_POSTO_ALL_TIMES: 'Secondo posto assoluto',
+        TERZO_POSTO_ALL_TIMES: 'Terzo posto assoluto',
+        MIGLIOR_PERFORMANCE: 'Miglior performance',
+        PRIMO_POSTO_TORNEO: 'Primo posto',
+        SECONDO_POSTO_TORNEO: 'Secondo posto',
+        TERZO_POSTO_TORNEO: 'Terzo posto'
     },
 
     // Avatar Categories and Labels
@@ -497,14 +516,19 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
     // Existing message constants
     MESSAGES: {
         EMPTY_NAME: 'Inserisci il nome del {type}',
+        EMPTY_DESCRIPTION: 'Inserisci la descrizione',
         DUPLICATE_NAME: 'Esiste già un {type} con questo nome',
         CONFIRM_DELETE_PLAYER: 'Sei sicuro di voler eliminare questo giocatore? Tutte le sue partite verranno rimosse.',
         CONFIRM_DELETE_GAME: 'Sei sicuro di voler eliminare questo gioco? Tutte le partite associate verranno rimosse.',
+        CONFIRM_DELETE_TOURNAMENT: 'Sei sicuro di voler eliminare questo torneo?',
         CONFIRM_DELETE_MATCH: 'Sei sicuro di voler eliminare questa partita?',
         MIN_PLAYERS_FOR_MATCH: 'Aggiungi almeno 2 giocatori prima di registrare una partita',
         MIN_GAMES_FOR_MATCH: 'Aggiungi almeno un gioco prima di registrare una partita',
         SELECT_GAME: 'Seleziona un gioco',
         SELECT_DATE: 'Seleziona una data',
+        SELECT_START_DATE: 'Seleziona la data di inizio',
+        SELECT_END_DATE: 'Seleziona la data di fine',
+        INVALID_DATE_RANGE: 'La data di fine deve essere successiva alla data di inizio',
         COMPLETE_PARTICIPANTS: 'Completa tutti i dati dei partecipanti',
         NO_DUPLICATE_PLAYERS: 'Un giocatore non può partecipare due volte alla stessa partita',
         MIN_PARTICIPANTS: 'Servono almeno 2 partecipanti',
@@ -528,6 +552,13 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
             name: 'gioco',
             addTitle: 'Aggiungi Gioco',
             editTitle: 'Modifica Gioco',
+            addButton: 'Aggiungi',
+            editButton: 'Salva Modifiche'
+        },
+        TOURNAMENT: {
+            name: 'torneo',
+            addTitle: 'Aggiungi Torneo',
+            editTitle: 'Modifica Torneo',
             addButton: 'Aggiungi',
             editButton: 'Salva Modifiche'
         }

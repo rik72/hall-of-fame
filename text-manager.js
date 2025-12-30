@@ -45,6 +45,7 @@ class TextManager {
         this.updateElementText('#nav-players-text', CONSTANTS.NAVIGATION.PLAYERS);
         this.updateElementText('#nav-games-text', CONSTANTS.NAVIGATION.GAMES);
         this.updateElementText('#nav-matches-text', CONSTANTS.NAVIGATION.MATCHES);
+        this.updateElementText('#nav-tournaments-text', CONSTANTS.NAVIGATION.TOURNAMENTS);
     }
 
     // Update section headers
@@ -56,6 +57,7 @@ class TextManager {
         this.updateElementText('#section-players-header', CONSTANTS.SECTIONS.PLAYERS);
         this.updateElementText('#section-games-header', CONSTANTS.SECTIONS.GAMES);
         this.updateElementText('#section-matches-header', CONSTANTS.SECTIONS.MATCHES);
+        this.updateElementText('#section-tournaments-header', CONSTANTS.SECTIONS.TOURNAMENTS);
     }
 
     // Update button labels
@@ -65,6 +67,9 @@ class TextManager {
 
         // Update add game button
         this.updateElementText('#add-game-btn-text', CONSTANTS.BUTTONS.ADD_GAME);
+
+        // Update add tournament button
+        this.updateElementText('#add-tournament-btn-text', CONSTANTS.BUTTONS.ADD_TOURNAMENT);
 
         // Update record match button
         this.updateElementText('#add-match-btn-text', CONSTANTS.BUTTONS.RECORD_MATCH);
@@ -96,6 +101,12 @@ class TextManager {
         if (matchCancelBtn) matchCancelBtn.textContent = CONSTANTS.BUTTONS.CANCEL;
         if (matchSubmitBtn) matchSubmitBtn.textContent = CONSTANTS.BUTTONS.RECORD_MATCH;
 
+        // Tournament modal buttons
+        const tournamentCancelBtn = document.querySelector('#addTournamentModal .btn-secondary');
+        const tournamentSubmitBtn = document.querySelector('#tournament-submit-btn');
+        if (tournamentCancelBtn) tournamentCancelBtn.textContent = CONSTANTS.BUTTONS.CANCEL;
+        if (tournamentSubmitBtn) tournamentSubmitBtn.textContent = CONSTANTS.BUTTONS.ADD;
+
         // Import modal buttons
         const importCancelBtn = document.querySelector('#importModal .btn-secondary');
         const importSubmitBtn = document.querySelector('#importModal .btn-primary');
@@ -119,9 +130,16 @@ class TextManager {
         this.updateElementText('#game-name-label', CONSTANTS.FORM_LABELS.GAME_NAME);
         this.updateElementText('#game-type-label', CONSTANTS.FORM_LABELS.TYPE);
 
+        // Tournament form labels
+        this.updateElementText('#tournament-name-label', CONSTANTS.FORM_LABELS.TOURNAMENT_NAME);
+        this.updateElementText('#tournament-description-label', CONSTANTS.FORM_LABELS.DESCRIPTION);
+        this.updateElementText('#tournament-start-date-label', CONSTANTS.FORM_LABELS.START_DATE);
+        this.updateElementText('#tournament-end-date-label', CONSTANTS.FORM_LABELS.END_DATE);
+
         // Match form labels
         this.updateElementText('#match-game-label', CONSTANTS.FORM_LABELS.GAME);
         this.updateElementText('#match-date-label', CONSTANTS.FORM_LABELS.DATE);
+        this.updateElementText('#match-tournament-label', CONSTANTS.FORM_LABELS.TOURNAMENT);
         this.updateElementText('#participants-label', CONSTANTS.FORM_LABELS.PARTICIPANTS_AND_RESULTS);
 
         // Import form labels
@@ -150,6 +168,9 @@ class TextManager {
         // Game modal title
         this.updateElementText('#game-modal-title', CONSTANTS.MODAL_TITLES.ADD_GAME);
 
+        // Tournament modal title
+        this.updateElementText('#tournament-modal-title', CONSTANTS.MODAL_TITLES.ADD_TOURNAMENT);
+
         // Match modal title
         this.updateElementText('#match-modal-title', CONSTANTS.MODAL_TITLES.RECORD_MATCH);
 
@@ -165,6 +186,9 @@ class TextManager {
         // Ranking sort options
         this.updateElementText('#ranking-sort-points', CONSTANTS.DROPDOWN_OPTIONS.RANKING_SORT.POINTS);
         this.updateElementText('#ranking-sort-performance', CONSTANTS.DROPDOWN_OPTIONS.RANKING_SORT.PERFORMANCE);
+
+        // Tournament filter options
+        this.updateElementText('#ranking-tournament-filter-all', CONSTANTS.DROPDOWN_OPTIONS.TOURNAMENT_FILTER.ALL_TOURNAMENTS);
 
         // Game ranking sort options
         this.updateElementText('#game-ranking-sort-points', CONSTANTS.DROPDOWN_OPTIONS.RANKING_SORT.POINTS);

@@ -4,7 +4,7 @@
 class NavigationManager {
     constructor() {
         this.currentSection = 'podium';
-        this.sections = ['podium', 'players', 'games', 'matches'];
+        this.sections = ['podium', 'players', 'games', 'matches', 'tournaments'];
         this.sectionCallbacks = new Map();
     }
 

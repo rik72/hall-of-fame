@@ -72,6 +72,14 @@ function saveMatch() {
     app.saveMatch();
 }
 
+function showAddTournamentModal() {
+    app.showAddTournamentModal();
+}
+
+function saveTournament() {
+    app.saveTournament();
+}
+
 function updateRankingSortOrder(sortBy) {
     app.updateRankingSortOrder(sortBy);
 }

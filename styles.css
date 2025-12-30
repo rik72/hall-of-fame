@@ -567,6 +567,17 @@ body {
     font-weight: 500;
 }
 
+.tournament-badges {
+    margin-top: 10px;
+}
+
+.tournament-badges .badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
 /* Game type badge colors - matching game icon colors */
 .badge-game-board {
     background-color: #8b5cf6 !important;

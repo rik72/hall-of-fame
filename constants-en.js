@@ -12,7 +12,8 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
     NAVIGATION: {
         PLAYERS: 'Players',
         GAMES: 'Games',
-        MATCHES: 'Matches'
+        MATCHES: 'Matches',
+        TOURNAMENTS: 'Tournaments'
     },
 
     // Section Headers
@@ -21,6 +22,7 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
         PLAYERS: 'Players',
         GAMES: 'Games',
         MATCHES: 'Matches',
+        TOURNAMENTS: 'Tournaments',
         GAME_RANKING: 'Game Leaderboard'
     },
 
@@ -28,6 +30,7 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
     BUTTONS: {
         ADD_PLAYER: 'Add Player',
         ADD_GAME: 'Add Game',
+        ADD_TOURNAMENT: 'Add Tournament',
         RECORD_MATCH: 'Record Match',
         ADD_PARTICIPANT: 'Add Participant',
         CANCEL: 'Cancel',
@@ -43,9 +46,14 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
     FORM_LABELS: {
         NAME: 'Name',
         GAME_NAME: 'Game Name',
+        TOURNAMENT_NAME: 'Tournament Name',
+        DESCRIPTION: 'Description',
+        START_DATE: 'Start Date',
+        END_DATE: 'End Date',
         AVATAR: 'Avatar',
         GAME: 'Game',
         DATE: 'Date',
+        TOURNAMENT: 'Tournament',
         TYPE: 'Type',
         PARTICIPANTS_AND_RESULTS: 'Participants and Results',
         BACKUP_FILE: 'Select .hof file'
@@ -65,6 +73,9 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
             POINTS: 'By Points',
             PERFORMANCE: 'By Performance'
         },
+        TOURNAMENT_FILTER: {
+            ALL_TOURNAMENTS: 'All Tournaments'
+        },
         GAME_TYPES: {
             BOARD: 'Board Game',
             CARD: 'Card Game', 
@@ -80,6 +91,8 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
         EDIT_PLAYER: 'Edit Player',
         ADD_GAME: 'Add Game',
         EDIT_GAME: 'Edit Game',
+        ADD_TOURNAMENT: 'Add Tournament',
+        EDIT_TOURNAMENT: 'Edit Tournament',
         RECORD_MATCH: 'Record Match',
         IMPORT_BACKUP: 'Import Backup',
         GAME_RANKING: 'Game Leaderboard'
@@ -118,11 +131,17 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
         AGGIUNGI_PARTITE_CLASSIFICA: 'Add players and record the first matches to see the leaderboard',
         GIOCO_ELIMINATO: 'Game deleted',
         GIOCATORE_ELIMINATO: 'Player deleted',
+        TORNEO_ELIMINATO: 'Tournament deleted',
+        IN_CORSO: 'In progress',
         PODIO_CLASSIFICA_PUNTEGGI: 'Podium in the complete score leaderboard',
         PRIMO_POSTO_GIOCO: 'First place in',
-        SECONDO_POSTO: 'Second place',
-        TERZO_POSTO: 'Third place',
-        MIGLIOR_PERFORMANCE: 'Best performance'
+        PRIMO_POSTO_ALL_TIMES: 'All times first place',
+        SECONDO_POSTO_ALL_TIMES: 'All times second place',
+        TERZO_POSTO_ALL_TIMES: 'All times third place',
+        MIGLIOR_PERFORMANCE: 'Best performance',
+        PRIMO_POSTO_TORNEO: 'First place',
+        SECONDO_POSTO_TORNEO: 'Second place',
+        TERZO_POSTO_TORNEO: 'Third place'
     },
 
     // Avatar Categories and Labels
@@ -497,14 +516,19 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
     // Existing message constants
     MESSAGES: {
         EMPTY_NAME: 'Enter the {type} name',
+        EMPTY_DESCRIPTION: 'Enter the description',
         DUPLICATE_NAME: 'A {type} with this name already exists',
         CONFIRM_DELETE_PLAYER: 'Are you sure you want to delete this player? All their matches will be removed.',
         CONFIRM_DELETE_GAME: 'Are you sure you want to delete this game? All associated matches will be removed.',
+        CONFIRM_DELETE_TOURNAMENT: 'Are you sure you want to delete this tournament?',
         CONFIRM_DELETE_MATCH: 'Are you sure you want to delete this match?',
         MIN_PLAYERS_FOR_MATCH: 'Add at least 2 players before recording a match',
         MIN_GAMES_FOR_MATCH: 'Add at least one game before recording a match',
         SELECT_GAME: 'Select a game',
         SELECT_DATE: 'Select a date',
+        SELECT_START_DATE: 'Select the start date',
+        SELECT_END_DATE: 'Select the end date',
+        INVALID_DATE_RANGE: 'End date must be after start date',
         COMPLETE_PARTICIPANTS: 'Complete all participant data',
         NO_DUPLICATE_PLAYERS: 'A player cannot participate twice in the same match',
         MIN_PARTICIPANTS: 'At least 2 participants are required',
@@ -528,6 +552,13 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
             name: 'game',
             addTitle: 'Add Game',
             editTitle: 'Edit Game',
+            addButton: 'Add',
+            editButton: 'Save Changes'
+        },
+        TOURNAMENT: {
+            name: 'tournament',
+            addTitle: 'Add Tournament',
+            editTitle: 'Edit Tournament',
             addButton: 'Add',
             editButton: 'Save Changes'
         }

@@ -12,6 +12,7 @@ class App {
         this.players = this.storageManager.load('players') || [];
         this.games = this.storageManager.load('games') || [];
         this.matches = this.storageManager.load('matches') || [];
+        this.tournaments = this.storageManager.load('tournaments') || [];
         
         // Inizializza il StatsManager
         this.statsManager = new StatsManager(this.avatarManager);
@@ -31,7 +32,7 @@ class App {
             this.avatarManager,
             (type, data) => this.onDataChange(type, data)
         );
-        this.matchManager.setData(this.matches, this.players, this.games);
+        this.matchManager.setData(this.matches, this.players, this.games, this.tournaments);
         
         // Inizializza il PlayerManager con callback per i cambiamenti dati e per ottenere i giochi migliori
         this.playerManager = new PlayerManager(
@@ -40,9 +41,18 @@ class App {
             (type, data) => this.onDataChange(type, data),
             (playerId) => this.getBestGamesForPlayer(playerId),
             () => this.getRanking('points'),
-            () => this.getRanking('performance')
+            () => this.getRanking('performance'),
+            this.tournaments,
+            (sortBy, tournamentId) => this.statsManager.getRanking(sortBy, tournamentId)
         );
-        this.playerManager.setData(this.players, this.matches);
+        this.playerManager.setData(this.players, this.matches, this.tournaments);
+        
+        // Inizializza il TournamentManager con callback per i cambiamenti dati
+        this.tournamentManager = new TournamentManager(
+            this.storageManager,
+            (type, data) => this.onDataChange(type, data)
+        );
+        this.tournamentManager.setData(this.tournaments);
         
         // Configurazione dell'applicazione
         this.currentSortOrder = 'points'; // Default sorting by points
@@ -55,19 +65,54 @@ class App {
         // Aggiorna i dati locali quando vengono modificati dai manager
         if (type === 'players') {
             this.players = data;
-            this.playerManager.setData(this.players, this.matches);
-            this.matchManager.setData(this.matches, this.players, this.games);
+            this.playerManager.setData(this.players, this.matches, this.tournaments);
+            this.matchManager.setData(this.matches, this.players, this.games, this.tournaments);
             this.statsManager.setData(this.players, this.matches);
         } else if (type === 'games') {
             this.games = data;
             this.gameManager.setData(this.games, this.matches);
-            this.matchManager.setData(this.matches, this.players, this.games);
+            this.matchManager.setData(this.matches, this.players, this.games, this.tournaments);
         } else if (type === 'matches') {
             this.matches = data;
-            this.playerManager.setData(this.players, this.matches);
+            this.playerManager.setData(this.players, this.matches, this.tournaments);
             this.gameManager.setData(this.games, this.matches);
-            this.matchManager.setData(this.matches, this.players, this.games);
+            this.matchManager.setData(this.matches, this.players, this.games, this.tournaments);
             this.statsManager.setData(this.players, this.matches);
+        } else if (type === 'tournaments') {
+            this.tournaments = data;
+            this.tournamentManager.setData(this.tournaments);
+            this.matchManager.setData(this.matches, this.players, this.games, this.tournaments);
+            // Aggiorna anche i tornei nel PlayerManager
+            this.playerManager.setData(this.players, this.matches, this.tournaments);
+            // Refresh tournament filter dropdown and preserve current selection if possible
+            const currentFilter = this.statsManager.getTournamentFilter();
+            this.initializeTournamentFilter();
+            // Try to restore the previous selection, or set to latest if it doesn't exist
+            const filterSelect = document.getElementById('ranking-tournament-filter');
+            if (filterSelect && currentFilter !== null) {
+                const optionExists = Array.from(filterSelect.options).some(opt => parseInt(opt.value) === currentFilter);
+                if (optionExists) {
+                    filterSelect.value = currentFilter;
+                    this.statsManager.setTournamentFilter(currentFilter);
+                } else {
+                    // Previous tournament was deleted, use default (latest)
+                    const sortedTournaments = this.tournamentManager.getTournamentsSortedByStartDate();
+                    const defaultTournamentId = sortedTournaments.length > 0 ? sortedTournaments[0].id : null;
+                    if (defaultTournamentId !== null) {
+                        filterSelect.value = defaultTournamentId;
+                        this.statsManager.setTournamentFilter(defaultTournamentId);
+                    } else {
+                        filterSelect.value = '';
+                        this.statsManager.setTournamentFilter(null);
+                    }
+                }
+            }
+            // Refresh display if on podium section
+            const currentSection = this.navigationManager.getCurrentSection();
+            if (currentSection === 'podium') {
+                this.statsManager.displayPodium();
+                this.statsManager.displayFullRanking();
+            }
         }
     }
 
@@ -86,6 +131,7 @@ class App {
         this.avatarManager.setupEventListeners();
         this.setupEventListeners();
         this.setupNavigationCallbacks();
+        this.initializeTournamentFilter();
         this.navigationManager.showSection('podium');
         this.setTodayDate();
     }
@@ -100,6 +146,12 @@ class App {
             if (sortSelector) {
                 sortSelector.value = this.statsManager.getCurrentSortOrder();
             }
+            // Update the tournament filter selector to reflect current filter
+            const tournamentFilterSelector = document.getElementById('ranking-tournament-filter');
+            if (tournamentFilterSelector) {
+                const currentFilter = this.statsManager.getTournamentFilter();
+                tournamentFilterSelector.value = currentFilter !== null ? currentFilter : '';
+            }
         });
         
         this.navigationManager.registerSectionCallback('players', () => {
@@ -112,6 +164,10 @@ class App {
         
         this.navigationManager.registerSectionCallback('matches', () => {
             this.matchManager.displayMatches();
+        });
+        
+        this.navigationManager.registerSectionCallback('tournaments', () => {
+            this.tournamentManager.displayTournaments();
         });
     }
 
@@ -254,6 +310,35 @@ class App {
         return this.gameManager.getGameTypeLabel(type);
     }
 
+    // ===== TOURNAMENT MANAGEMENT (Delegato al TournamentManager) =====
+    showAddTournamentModal() {
+        return this.tournamentManager.showAddTournamentModal();
+    }
+
+    addTournament() {
+        return this.tournamentManager.addTournament();
+    }
+
+    showEditTournamentModal(tournamentId) {
+        return this.tournamentManager.showEditTournamentModal(tournamentId);
+    }
+
+    saveTournament() {
+        return this.tournamentManager.saveTournament();
+    }
+
+    editTournament() {
+        return this.tournamentManager.editTournament();
+    }
+
+    deleteTournament(tournamentId) {
+        return this.tournamentManager.deleteTournament(tournamentId);
+    }
+
+    displayTournaments() {
+        return this.tournamentManager.displayTournaments();
+    }
+
     // ===== MATCH MANAGEMENT (Delegato al MatchManager) =====
     showAddMatchModal() {
         return this.matchManager.showAddMatchModal();
@@ -295,6 +380,49 @@ class App {
         this.currentSortOrder = sortBy;
         this.statsManager.setCurrentSortOrder(sortBy);
         this.statsManager.updateRankingSortOrder(sortBy);
+    }
+
+    /**
+     * Inizializza il dropdown del filtro torneo
+     */
+    initializeTournamentFilter() {
+        const filterSelect = document.getElementById('ranking-tournament-filter');
+        if (!filterSelect) {
+            return;
+        }
+
+        // Get tournaments sorted by start date (newest first)
+        const sortedTournaments = this.tournamentManager.getTournamentsSortedByStartDate();
+        
+        // Build options: "All Tournaments" + list of tournaments
+        let options = `<option value="" id="ranking-tournament-filter-all">${CONSTANTS.DROPDOWN_OPTIONS.TOURNAMENT_FILTER.ALL_TOURNAMENTS}</option>`;
+        
+        sortedTournaments.forEach(tournament => {
+            options += `<option value="${tournament.id}">${tournament.name}</option>`;
+        });
+        
+        filterSelect.innerHTML = options;
+        
+        // Set default to latest tournament (first in sorted list) or null if no tournaments
+        const defaultTournamentId = sortedTournaments.length > 0 ? sortedTournaments[0].id : null;
+        if (defaultTournamentId !== null) {
+            filterSelect.value = defaultTournamentId;
+            this.statsManager.setTournamentFilter(defaultTournamentId);
+        } else {
+            filterSelect.value = '';
+            this.statsManager.setTournamentFilter(null);
+        }
+    }
+
+    /**
+     * Aggiorna il filtro torneo e ricarica le visualizzazioni
+     * @param {string} tournamentId - ID del torneo (stringa vuota = tutti i tornei)
+     */
+    updateTournamentFilter(tournamentId) {
+        const filterId = tournamentId === '' || tournamentId === null ? null : parseInt(tournamentId);
+        this.statsManager.setTournamentFilter(filterId);
+        this.statsManager.displayPodium();
+        this.statsManager.displayFullRanking();
     }
 
     // Sort participants by position first (winner, participant, last), then by name (Delegato al MatchManager)
@@ -340,7 +468,8 @@ class App {
         const data = {
             players: this.players,
             games: this.games,
-            matches: this.matches
+            matches: this.matches,
+            tournaments: this.tournaments
         };
         
         const success = await this.backupManager.exportData(data);
@@ -361,11 +490,20 @@ class App {
             this.players = importedData.players;
             this.games = importedData.games;
             this.matches = importedData.matches;
+            this.tournaments = importedData.tournaments || [];
 
             // Save to localStorage
             this.saveToStorage('players', this.players);
             this.saveToStorage('games', this.games);
             this.saveToStorage('matches', this.matches);
+            this.saveToStorage('tournaments', this.tournaments);
+
+            // Update managers with imported data
+            this.playerManager.setData(this.players, this.matches, this.tournaments);
+            this.gameManager.setData(this.games, this.matches);
+            this.matchManager.setData(this.matches, this.players, this.games, this.tournaments);
+            this.statsManager.setData(this.players, this.matches);
+            this.tournamentManager.setData(this.tournaments);
 
             // Refresh current section
             const currentSection = this.navigationManager.getCurrentSection();

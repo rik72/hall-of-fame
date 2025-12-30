@@ -2,13 +2,15 @@
 // Gestisce tutte le operazioni CRUD sui giocatori: creazione, modifica, eliminazione, visualizzazione
 
 class PlayerManager {
-    constructor(storageManager, avatarManager, onDataChange = null, getBestGamesCallback = null, getRankingCallback = null, getRankingPerformanceCallback = null) {
+    constructor(storageManager, avatarManager, onDataChange = null, getBestGamesCallback = null, getRankingCallback = null, getRankingPerformanceCallback = null, tournaments = [], getTournamentRankingCallback = null) {
         this.storageManager = storageManager;
         this.avatarManager = avatarManager;
         this.onDataChange = onDataChange; // Callback chiamato quando i dati cambiano
         this.getBestGamesCallback = getBestGamesCallback; // Callback per ottenere i giochi dove il giocatore è il migliore
         this.getRankingCallback = getRankingCallback; // Callback per ottenere il ranking per punteggio
         this.getRankingPerformanceCallback = getRankingPerformanceCallback; // Callback per ottenere il ranking per performance
+        this.tournaments = tournaments; // Array dei tornei
+        this.getTournamentRankingCallback = getTournamentRankingCallback; // Callback per ottenere il ranking di un torneo specifico
         this.players = [];
         this.matches = []; // Necessario per calcolare le statistiche
     }
@@ -17,10 +19,14 @@ class PlayerManager {
      * Imposta i dati dei giocatori e delle partite
      * @param {Array} players - Array dei giocatori
      * @param {Array} matches - Array delle partite (per calcolare statistiche)
+     * @param {Array} tournaments - Array dei tornei (opzionale)
      */
-    setData(players, matches) {
+    setData(players, matches, tournaments = null) {
         this.players = players || [];
         this.matches = matches || [];
+        if (tournaments !== null) {
+            this.tournaments = tournaments || [];
+        }
     }
 
     /**
@@ -201,6 +207,7 @@ class PlayerManager {
             const stats = this.calculatePlayerStats(player.id);
             const bestGames = this.getBestGamesCallback ? this.getBestGamesCallback(player.id) : [];
             const bestGamesBadges = bestGames.length > 0 ? this.createBestGamesBadges(bestGames) : '';
+            const tournamentBadges = this.createTournamentBadges(player.id);
             const isFirstPlace = player.id === firstPlacePlayerId;
             const isSecondPlace = rankingPoints.length > 1 ? player.id === rankingPoints[1].id : false;
             const isThirdPlace = rankingPoints.length > 2 ? player.id === rankingPoints[2].id : false;
@@ -233,6 +240,7 @@ class PlayerManager {
                         ${DisplayManager.createStatsDisplay(stats)}
                     </div>
                     ${rankingBadges}
+                    ${tournamentBadges}
                     ${bestGamesBadges}
                     <div class="card-actions">
                         ${HtmlBuilder.createActionButtons(player.id, 'Player')}
@@ -319,7 +327,7 @@ class PlayerManager {
      */
     createFirstPlaceBadge() {
         return `<span class="badge badge-first-place me-1" title="${window.CONSTANTS?.UI_TEXT?.PODIO_CLASSIFICA_PUNTEGGI || 'Podium in the complete score leaderboard'}" data-bs-toggle="tooltip" data-bs-placement="top">
-                <i class="bi bi-trophy-fill me-1"></i>${window.CONSTANTS?.UI_TEXT?.PRIMO_POSTO || 'First place'}
+                <i class="bi bi-trophy-fill me-1"></i>${window.CONSTANTS?.UI_TEXT?.PRIMO_POSTO_ALL_TIMES || 'First place'}
             </span>`;
     }
 
@@ -339,7 +347,7 @@ class PlayerManager {
      */
     createSecondPlaceBadge() {
         return `<span class="badge badge-second-place me-1" title="Podio nella classifica dei punteggi completa" data-bs-toggle="tooltip" data-bs-placement="top">
-            <i class="bi bi-trophy-fill me-1"></i>${window.CONSTANTS?.UI_TEXT?.SECONDO_POSTO || 'Second place'}
+            <i class="bi bi-trophy-fill me-1"></i>${window.CONSTANTS?.UI_TEXT?.SECONDO_POSTO_ALL_TIMES || 'Second place'}
         </span>`;
     }
 
@@ -349,7 +357,7 @@ class PlayerManager {
      */
     createThirdPlaceBadge() {
         return `<span class="badge badge-third-place me-1" title="Podio nella classifica dei punteggi completa" data-bs-toggle="tooltip" data-bs-placement="top">
-            <i class="bi bi-trophy-fill me-1"></i>${window.CONSTANTS?.UI_TEXT?.TERZO_POSTO || 'Third place'}
+            <i class="bi bi-trophy-fill me-1"></i>${window.CONSTANTS?.UI_TEXT?.TERZO_POSTO_ALL_TIMES || 'Third place'}
         </span>`;
     }
 
@@ -380,6 +388,80 @@ class PlayerManager {
         return `
             <div class="best-games-badges mt-2">
                 ${badges}
+            </div>
+        `;
+    }
+
+    /**
+     * Crea i badge per i tornei dove il giocatore è sul podio
+     * @param {number} playerId - ID del giocatore
+     * @returns {string} - HTML per i badge dei tornei
+     */
+    createTournamentBadges(playerId) {
+        if (!this.getTournamentRankingCallback || !this.tournaments || this.tournaments.length === 0) {
+            return '';
+        }
+
+        const tournamentBadges = [];
+
+        // Per ogni torneo, calcola il ranking e verifica se il giocatore è sul podio
+        this.tournaments.forEach(tournament => {
+            const ranking = this.getTournamentRankingCallback('points', tournament.id);
+            
+            if (ranking.length === 0) {
+                return; // Nessun giocatore in questo torneo
+            }
+
+            // Trova la posizione del giocatore nel ranking
+            const playerIndex = ranking.findIndex(p => p.id === playerId);
+            
+            if (playerIndex === 0) {
+                // Primo posto
+                tournamentBadges.push({
+                    position: 1,
+                    tournamentName: tournament.name,
+                    badgeClass: 'badge-first-place'
+                });
+            } else if (playerIndex === 1) {
+                // Secondo posto
+                tournamentBadges.push({
+                    position: 2,
+                    tournamentName: tournament.name,
+                    badgeClass: 'badge-second-place'
+                });
+            } else if (playerIndex === 2) {
+                // Terzo posto
+                tournamentBadges.push({
+                    position: 3,
+                    tournamentName: tournament.name,
+                    badgeClass: 'badge-third-place'
+                });
+            }
+        });
+
+        if (tournamentBadges.length === 0) {
+            return '';
+        }
+
+        // Crea gli HTML dei badge
+        const badgesHtml = tournamentBadges.map(badge => {
+            let text = '';
+            if (badge.position === 1) {
+                text = `${window.CONSTANTS?.UI_TEXT?.PRIMO_POSTO_TORNEO || 'Primo posto nel torneo'} ${badge.tournamentName}`;
+            } else if (badge.position === 2) {
+                text = `${window.CONSTANTS?.UI_TEXT?.SECONDO_POSTO_TORNEO || 'Secondo posto nel torneo'} ${badge.tournamentName}`;
+            } else if (badge.position === 3) {
+                text = `${window.CONSTANTS?.UI_TEXT?.TERZO_POSTO_TORNEO || 'Terzo posto nel torneo'} ${badge.tournamentName}`;
+            }
+
+            return `<span class="badge ${badge.badgeClass} me-1 mb-1" title="${text}" data-bs-toggle="tooltip" data-bs-placement="top">
+                <i class="bi bi-trophy-fill me-1"></i>${text}
+            </span>`;
+        }).join('');
+
+        return `
+            <div class="tournament-badges mt-2">
+                ${badgesHtml}
             </div>
         `;
     }

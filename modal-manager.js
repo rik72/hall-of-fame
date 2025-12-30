@@ -12,6 +12,8 @@ class ModalManager {
             this.setupPlayerModal(isEdit, data, modalConfig);
         } else if (type === 'game') {
             this.setupGameModal(isEdit, data, modalConfig);
+        } else if (type === 'tournament') {
+            this.setupTournamentModal(isEdit, data, modalConfig);
         }
         
         // Update modal title and button
@@ -49,6 +51,25 @@ class ModalManager {
         } else {
             nameField.value = '';
             typeField.value = 'board';
+        }
+    }
+
+    static setupTournamentModal(isEdit, data, modalConfig) {
+        const nameField = document.getElementById('tournament-name');
+        const descriptionField = document.getElementById('tournament-description');
+        const startDateField = document.getElementById('tournament-start-date');
+        const endDateField = document.getElementById('tournament-end-date');
+        
+        if (isEdit && data) {
+            nameField.value = data.name;
+            descriptionField.value = data.description || '';
+            startDateField.value = data.startDate || '';
+            endDateField.value = data.endDate || '';
+        } else {
+            nameField.value = '';
+            descriptionField.value = '';
+            startDateField.value = '';
+            endDateField.value = '';
         }
     }
 } 

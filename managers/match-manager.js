@@ -9,18 +9,21 @@ class MatchManager {
         this.matches = [];
         this.players = []; // Necessari per validazioni e display
         this.games = [];   // Necessari per display partite
+        this.tournaments = []; // Necessari per filtraggio tornei
     }
 
     /**
-     * Imposta i dati delle partite, giocatori e giochi
+     * Imposta i dati delle partite, giocatori, giochi e tornei
      * @param {Array} matches - Array delle partite
      * @param {Array} players - Array dei giocatori
      * @param {Array} games - Array dei giochi
+     * @param {Array} tournaments - Array dei tornei
      */
-    setData(matches, players, games) {
+    setData(matches, players, games, tournaments) {
         this.matches = matches || [];
         this.players = players || [];
         this.games = games || [];
+        this.tournaments = tournaments || [];
     }
 
     /**
@@ -46,6 +49,23 @@ class MatchManager {
         if (gameSelect) {
             gameSelect.innerHTML = '<option value="">Seleziona un gioco...</option>' +
                 this.games.map(game => `<option value="${game.id}">${game.name}</option>`).join('');
+        }
+        
+        // Initialize tournament dropdown (empty initially)
+        this.populateTournamentDropdown(null);
+        
+        // Clear date field and set up event listener for tournament filtering
+        const dateField = document.getElementById('match-date');
+        if (dateField) {
+            dateField.value = '';
+            // Remove existing event listener if any (by cloning and replacing)
+            const newDateField = dateField.cloneNode(true);
+            dateField.parentNode.replaceChild(newDateField, dateField);
+            // Add event listener for date change to filter tournaments
+            newDateField.addEventListener('change', (e) => {
+                const selectedDate = e.target.value;
+                this.populateTournamentDropdown(selectedDate);
+            });
         }
         
         // Clear participants
@@ -89,6 +109,8 @@ class MatchManager {
     addMatch() {
         const gameId = parseInt(document.getElementById('match-game')?.value);
         const date = document.getElementById('match-date')?.value;
+        const tournamentIdValue = document.getElementById('match-tournament')?.value;
+        const tournamentId = tournamentIdValue ? parseInt(tournamentIdValue) : null;
         const participantRows = document.querySelectorAll('#match-participants .participant-row');
         
         // Validazioni
@@ -135,6 +157,7 @@ class MatchManager {
             id: Date.now(),
             gameId,
             date,
+            tournamentId,
             participants: sortedParticipants
         };
         
@@ -187,7 +210,22 @@ class MatchManager {
         
         // Set date
         const dateField = document.getElementById('match-date');
-        if (dateField) dateField.value = match.date;
+        if (dateField) {
+            dateField.value = match.date;
+            // Remove existing event listener if any (by cloning and replacing)
+            const newDateField = dateField.cloneNode(true);
+            dateField.parentNode.replaceChild(newDateField, dateField);
+            // Add event listener for date change to filter tournaments
+            newDateField.addEventListener('change', (e) => {
+                const selectedDate = e.target.value;
+                const currentTournamentId = document.getElementById('match-tournament')?.value || null;
+                this.populateTournamentDropdown(selectedDate, currentTournamentId ? parseInt(currentTournamentId) : null);
+            });
+        }
+        
+        // Populate tournament dropdown with compatible tournaments and preselect if exists
+        const tournamentId = match.tournamentId || null;
+        this.populateTournamentDropdown(match.date, tournamentId);
         
         // Clear and populate participants
         const participantsContainer = document.getElementById('match-participants');
@@ -252,6 +290,8 @@ class MatchManager {
         const editId = parseInt(document.getElementById('match-edit-id')?.value);
         const gameId = parseInt(document.getElementById('match-game')?.value);
         const date = document.getElementById('match-date')?.value;
+        const tournamentIdValue = document.getElementById('match-tournament')?.value;
+        const tournamentId = tournamentIdValue ? parseInt(tournamentIdValue) : null;
         const participantRows = document.querySelectorAll('#match-participants .participant-row');
         
         // Validazioni
@@ -305,6 +345,7 @@ class MatchManager {
             ...this.matches[matchIndex],
             gameId,
             date,
+            tournamentId,
             participants: sortedParticipants
         };
         
@@ -364,14 +405,18 @@ class MatchManager {
         
         container.innerHTML = `<div class="row">${sortedMatches.map(match => {
             const game = this.games.find(g => g.id === match.gameId);
+            const tournament = match.tournamentId ? this.tournaments.find(t => t.id === match.tournamentId) : null;
             return `
                 <div class="col-lg-4 col-md-6 col-12 mb-3">
                     <div class="card-base match-card">
-                        <div class="match-header mb-3">
+                        <div class="match-header mb-3 d-flex justify-content-between align-items-start">
                             <div>
                                 <h5 class="mb-1">${game ? game.name : (window.CONSTANTS?.UI_TEXT?.GIOCO_ELIMINATO || 'Game deleted')}</h5>
                                 <small class="text-muted">${new Date(match.date).toLocaleDateString('it-IT')}</small>
                             </div>
+                            ${tournament ? `<div class="text-end">
+                                <small class="text-muted"><i class="bi bi-trophy me-1"></i>${tournament.name}</small>
+                            </div>` : ''}
                         </div>
                         <div class="participants">
                             ${match.participants.map(p => {
@@ -464,6 +509,66 @@ const nameB = playerB ? playerB.name : (window.CONSTANTS?.UI_TEXT?.GIOCATORE_ELI
         
         if (modalTitle) modalTitle.textContent = title;
         if (submitBtn) submitBtn.textContent = buttonText;
+    }
+
+    /**
+     * Ottiene i tornei compatibili con una data specifica
+     * @param {string} date - Data in formato YYYY-MM-DD
+     * @returns {Array} - Array dei tornei compatibili
+     */
+    getCompatibleTournaments(date) {
+        if (!date) {
+            return [];
+        }
+
+        return this.tournaments.filter(tournament => {
+            // La data del match deve essere >= startDate
+            if (date < tournament.startDate) {
+                return false;
+            }
+
+            // Se il torneo ha endDate, la data del match deve essere <= endDate
+            if (tournament.endDate && date > tournament.endDate) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    /**
+     * Popola il dropdown dei tornei con quelli compatibili con la data
+     * @param {string} date - Data in formato YYYY-MM-DD (può essere null)
+     * @param {number} selectedTournamentId - ID del torneo da preselezionare (opzionale)
+     */
+    populateTournamentDropdown(date, selectedTournamentId = null) {
+        const tournamentSelect = document.getElementById('match-tournament');
+        if (!tournamentSelect) {
+            return;
+        }
+
+        // Salva il valore selezionato corrente se esiste
+        const currentValue = selectedTournamentId || tournamentSelect.value;
+
+        // Ottieni i tornei compatibili
+        const compatibleTournaments = date ? this.getCompatibleTournaments(date) : [];
+
+        // Costruisci le opzioni
+        let options = '<option value="" id="match-tournament-placeholder">Nessun torneo</option>';
+        
+        if (compatibleTournaments.length > 0) {
+            options += compatibleTournaments.map(tournament => {
+                const selected = currentValue && parseInt(currentValue) === tournament.id ? 'selected' : '';
+                return `<option value="${tournament.id}" ${selected}>${tournament.name}</option>`;
+            }).join('');
+        }
+
+        tournamentSelect.innerHTML = options;
+
+        // Se il torneo selezionato non è più compatibile, deselezionalo
+        if (currentValue && !compatibleTournaments.some(t => t.id === parseInt(currentValue))) {
+            tournamentSelect.value = '';
+        }
     }
 
     /**
