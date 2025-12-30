@@ -101,7 +101,7 @@ window.CONSTANTS_EN_OBJ = window.CONSTANTS_EN_OBJ || {
     // Alert Messages
     ALERTS: {
         IMPORT_WARNING_TITLE: 'Warning!',
-        IMPORT_WARNING_MESSAGE: 'Importing will replace all current data (players, games, and matches) with the backup file data.'
+        IMPORT_WARNING_MESSAGE: 'Importing will replace all current data (players, games, matches, and tournaments) with the backup file data.'
     },
 
     // Footer and Links

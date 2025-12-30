@@ -24,6 +24,7 @@ class BackupManager {
                 players: data.players || [],
                 games: data.games || [],
                 matches: data.matches || [],
+                tournaments: data.tournaments || [],
                 exportDate: new Date().toISOString(),
                 version: this.version
             };
@@ -110,7 +111,8 @@ class BackupManager {
                 return {
                     players: data.players,
                     games: data.games,
-                    matches: data.matches
+                    matches: data.matches,
+                    tournaments: data.tournaments || []
                 };
             }
 
@@ -174,20 +176,26 @@ class BackupManager {
         const playerCount = data.players.length;
         const gameCount = data.games.length;
         const matchCount = data.matches.length;
+        const tournamentCount = (data.tournaments || []).length;
         const exportDate = data.exportDate ? 
             new Date(data.exportDate).toLocaleDateString('it-IT') : 
             'Data sconosciuta';
 
-        const message = `Confermi l'importazione del backup del ${exportDate}?\n\n` +
+        let message = `Confermi l'importazione del backup del ${exportDate}?\n\n` +
                        `Dati nel backup:\n` +
                        `- ${playerCount} giocatori\n` +
                        `- ${gameCount} giochi\n` +
-                       `- ${matchCount} ${Utils.pluralizeMatches(matchCount)}\n\n` +
-                       `Tutti i dati attuali verranno sostituiti.`;
+                       `- ${matchCount} ${Utils.pluralizeMatches(matchCount)}`;
+        
+        if (tournamentCount > 0) {
+            message += `\n- ${tournamentCount} tornei`;
+        }
+        
+        message += `\n\nTutti i dati attuali verranno sostituiti.`;
 
         return {
             message,
-            stats: { playerCount, gameCount, matchCount, exportDate }
+            stats: { playerCount, gameCount, matchCount, tournamentCount, exportDate }
         };
     }
 

@@ -101,7 +101,7 @@ window.CONSTANTS_IT_OBJ = window.CONSTANTS_IT_OBJ || {
     // Alert Messages
     ALERTS: {
         IMPORT_WARNING_TITLE: 'Attenzione!',
-        IMPORT_WARNING_MESSAGE: 'L\'importazione sostituirà tutti i dati attuali (giocatori, giochi e partite) con quelli del file di backup.'
+        IMPORT_WARNING_MESSAGE: 'L\'importazione sostituirà tutti i dati attuali (giocatori, giochi, partite e tornei) con quelli del file di backup.'
     },
 
     // Footer and Links
